@@ -1,4 +1,32 @@
 //import {elementToPath} from "./element-to-path/src/index"
+// Compute the bounding box manually
+function computeBoundingBox(svgElement) {
+    // Get the viewBox dimensions
+    const viewBox = svgElement.getAttribute('viewBox').split(' ').map(parseFloat);
+    const viewBoxX = viewBox[0];
+    const viewBoxY = viewBox[1];
+    const viewBoxWidth = viewBox[2];
+    const viewBoxHeight = viewBox[3];
+
+    // Get the width and height attributes
+    const width = parseFloat(svgElement.getAttribute('width'));
+    const height = parseFloat(svgElement.getAttribute('height'));
+
+    // Compute the scale factors
+    const scaleX = width / viewBoxWidth;
+    const scaleY = height / viewBoxHeight;
+
+    // Compute the bounding box
+    const minX = viewBoxX;
+    const minY = viewBoxY;
+    const maxX = viewBoxX + width;
+    const maxY = viewBoxY + height;
+
+    return { minX, minY, maxX, maxY };
+}
+
+
+
 
 function getSvgSize(document) {
     //const doc = parseFromString(string);
@@ -37,12 +65,18 @@ function getSvgSize(document) {
     return [parseFloat(width), parseFloat(height)];
 }
 
+
+
 /*export*/ function getSvgBBox(document) {
-    try {
+    let bbox = computeBoundingBox(document.getElementsByTagName('svg')[0]);
+    return bbox
+    /*try {
         const paths = svg2paths(document);
         let xminSvg = 100, xmaxSvg = -100, yminSvg = 100, ymaxSvg = -100;
         paths.forEach(path => {
-            const bbox = path.getBBox();
+            console.log(path)
+            let bbox = path.getBBox();
+            console.log(bbox)
             const xmin = bbox.x;
             const xmax = bbox.x + bbox.width;
             const ymin = bbox.y;
@@ -57,15 +91,17 @@ function getSvgSize(document) {
         console.log(`${document}: svg2path fails. SVG bbox is computed by using getSvgSize. ${e}`);
         const [width, height] = getSvgSize(document);
         return [0, width, 0, height];
-    }
+    }*/
 }
 
 /*export*/ function getPathBBox(document, animationId) {
     try {
         const paths = svg2paths(document);
         for (let i = 0; i < paths.length; i++) {
-            if (paths[i].attributes.animation_id === animationId.toString()) {
-                const bbox = path.getBBox();
+            if (paths[i].getAttribute('animation_id') == animationId) {
+                const bbox = paths[i].getBBox();
+                console.log('path')
+                console.log(bbox)
                 const xmin = bbox.x;
                 const xmax = bbox.x + bbox.width;
                 const ymin = bbox.y;

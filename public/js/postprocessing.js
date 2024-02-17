@@ -1,17 +1,18 @@
 let filter_id = 0;
+let global_animation_id = 0;
 
 function animate_logo(model_output, logo_document) {
-    boundary = getSvgBBox(logo_document);
-    const logo_xmin = boundary[0];
-    const logo_xmax = boundary[1];
-    const logo_ymin = boundary[2];
-    const logo_ymax = boundary[3];
+    let boundary = getSvgBBox(logo_document);
+    const logo_xmin = boundary.x;
+    const logo_xmax = boundary.x + boundary.width;
+    const logo_ymin = boundary.y;
+    const logo_ymax = boundary.y + boundary.height;
 
     // Normalize model output
     const animations_by_id = new Map();
     for (const row of model_output) {
-        const animation_id = row.animation_id;
-        const output = row.model_output;
+        const animation_id = Array.from( row.keys() )[0];
+        const output = row.get(animation_id);
         if (!animations_by_id.has(animation_id)) {
             animations_by_id.set(animation_id, []);
         }
@@ -19,8 +20,10 @@ function animate_logo(model_output, logo_document) {
     }
 
     const total_animations = [];
-    for (const [animation_id, animations] of animations_by_id.entries()) {
-        boundary = getPathBBox(string, animation_id)
+    console.log(animations_by_id)
+    for (const animation_id of animations_by_id.keys()) {
+        const animations = animations_by_id.get(animation_id)
+        let boundary = getPathBBox(logo_document, animation_id)
         const path_xmin = boundary[0];
         const path_xmax = boundary[1];
         const path_ymin = boundary[2];
@@ -45,7 +48,8 @@ function animate_logo(model_output, logo_document) {
             }
         }
 
-        for (const [animation_type, animationList] of animations_by_type.entries()) {
+        for (const animation_type of animations_by_type.keys()) {
+            const animationList = animations_by_type.get(animation_type)
             const current_animations = [];
             animationList.sort((a, b) => a[10] - b[10]); // Sort by begin
             for (let i = 0; i < animationList.length; i++) {
@@ -54,12 +58,12 @@ function animate_logo(model_output, logo_document) {
                 let dur = animation[11];
                 let animationType;
                 try {
-                    animationType = animation.slice(1, 10).indexOf(1);
+                    animationType = animation.slice(0, 10).indexOf(1);
                 } catch (error) {
                     console.log('Model output invalid: no animation type found');
                     return;
                 }
-                handleAnimation(animationType, animation, currentAnimations, xmin, xmax, ymin, ymax, begin, dur);
+                handleAnimation(animation_id, i, animationList, animationType, animation, current_animations, xmin, xmax, ymin, ymax, begin, dur);
                 
             }
             total_animations.push(...current_animations);
@@ -68,12 +72,13 @@ function animate_logo(model_output, logo_document) {
     _insert_animations(total_animations, logo_document);
 }
 
-function handleAnimation(animationType, animation, currentAnimations, xmin, xmax, ymin, ymax) {
-
+function handleAnimation(animation_id, i, animationList, animationType, animation, currentAnimations, xmin, xmax, ymin, ymax, begin, dur) {
     switch (animationType) {
         case 1: // animation: translate
             console.log('translate')
             let from_x = animation[12];
+            console.log(from_x)
+            console.log(xmin)
             let from_y = animation[13];
             let to_x, to_y;
             if (i < animationList.length - 1) {
@@ -85,6 +90,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             }
             // Check if parameters are within boundary
             from_x = Math.min(Math.max(from_x, xmin), xmax);
+            console.log(from_x)
             from_y = Math.min(Math.max(from_y, ymin), ymax);
             to_x = Math.min(Math.max(to_x, xmin), xmax);
             to_y = Math.min(Math.max(to_y, ymin), ymax);
@@ -170,14 +176,15 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             } else {
                 // Get fill style from SVG
                 // Note: You need to implement getStyleAttributesPath function in JavaScript
-                let fillStyle = getStyleAttributesPath(logoString, animation_id, "fill");
+                /*let fillStyle = getStyleAttributesPath(logoString, animation_id, "fill");
                 let strokeStyle = getStyleAttributesPath(logoString, animation_id, "stroke");
                 if (fillStyle === "none" && strokeStyle !== "none") {
                     colorHex = strokeStyle;
                 } else {
                     colorHex = fillStyle;
                 }
-                to_rgb = colorHex;
+                to_rgb = colorHex;*/
+                to_rgb = "#000"
             }
             currentAnimations.push(_animation_fill(animation_id, begin, dur, from_rgb, to_rgb));
             break;
@@ -364,15 +371,14 @@ function _animation_blur(animation_id, begin, dur, from_f, to_f) {
 
 function _insert_animations(animations, document) {
     console.log('Insert animations');
-    const elements = document.getElementsByTagName('path').concat(document.getElementsByTagName('circle'))
-        .concat(document.getElementsByTagName('ellipse')).concat(document.getElementsByTagName('line'))
-        .concat(document.getElementsByTagName('polygon')).concat(document.getElementsByTagName('polyline'))
-        .concat(document.getElementsByTagName('rect')).concat(document.getElementsByTagName('text'));
+    const elements = get_all_elements(document)
 
     for (const animation of animations) {
+        console.log('Current animation')
+        console.log(animation)
         let current_element = null;
         for (const element of elements) {
-            if (element.getAttribute('animation_id') === animation.animation_id.toString()) {
+            if (element.getAttribute('animation_id') == animation.animation_id) {
                 current_element = element;
                 break;
             }
@@ -396,14 +402,15 @@ function _insert_animations(animations, document) {
                 current_element.setAttribute('filter', `url(#${filter_id})`);
                 break;
         }
+        console.log('Statement')
+        console.log(animate_statement)
         if (animate_statement) {
             current_element.appendChild(animate_statement);
         }
     }
 
     const result = new XMLSerializer().serializeToString(document);
-    console.log(result);
-    return result;
+    //console.log(result)
 }
 
 function _create_animate_transform_statement(animation) {
@@ -454,7 +461,7 @@ function _get_filter_element(document) {
         filter_element.setAttribute('id', `filter${filter_id}`);
         filter_element.setAttribute('width', '150%');
         filter_element.setAttribute('height', '150%');
-        document.documentElement.appendChild(filter_element);
+        document.getElementsByTagName('svg')[0].appendChild(filter_element);
     }
     return [document.getElementById(`filter${filter_id}`), filter_id];
 }
@@ -464,17 +471,52 @@ function randomly_animate_logo(logo_path, target_path, number_of_animations, pre
     // Implementation of randomly_animate_logo
 }
 
+function get_all_elements(document){
+    paths = Array.from(document.getElementsByTagName('path'))
+    circles = Array.from(document.getElementsByTagName('circle'))
+    ellipses = Array.from(document.getElementsByTagName('ellipse'))
+    lines = Array.from(document.getElementsByTagName('line'))
+    polygons = Array.from(document.getElementsByTagName('polygon'))
+    polylines = Array.from(document.getElementsByTagName('polyline'))
+    rects = Array.from(document.getElementsByTagName('rect'))
+    texts = Array.from(document.getElementsByTagName('text'))
+    elements = [];
+    elements = elements.concat(paths, circles, ellipses, lines, polygons, polylines, rects, texts)
+    console.log(elements)
+    return elements
+    
+}
+function insert_animation_id(element){
+    element.setAttribute('animation_id', global_animation_id);
+    global_animation_id++;
+}
+
 // Function for testing
 function test(){
     // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-    animation_type = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    let animation_type = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0];
     // Animation parameters (positions 10-25 of animation embedding) 
-    animation_parameters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    let animation_parameters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     // Load logo
-    model_output = animation_type.concat(animation_parameters)
+    let model_output = animation_type.concat(animation_parameters);
+    let animation = new Map();
+    // set animation for animation id 0
+    animation.set(0, model_output);
+    let test_data = [];
+    test_data.push(animation)
     $(document).ready(function () {
-        $.get("https://cdn.worldvectorlogo.com/logos/keithley.svg", function (data) {
-            animate_logo(model_output, data)
+        $.get("https://cdn.worldvectorlogo.com/logos/united-biscuits.svg", function (data) {
+            
+            console.log(data)
+            const result = new XMLSerializer().serializeToString(data);
+            console.log(result)
+            document.getElementById("logo").innerHTML = result
+            // insert animation id
+            elements = get_all_elements(document)
+            elements.forEach(insert_animation_id)
+            // animate
+            animate_logo(test_data, document)
+            document.getElementById("logo").innerHTML = ""
         });
     });
 }

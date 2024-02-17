@@ -220,6 +220,10 @@ Index Html
   border-radius: var(--radius);
   margin-bottom: 0.5rem;
 }
+svg{
+  position: absolute;
+}
+
 .buttons {
   grid-area: buttons;
   margin-bottom: 0.5rem;
