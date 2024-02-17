@@ -115,14 +115,14 @@ function getSvgSize(document) {
     return [0, 0, 0, 0];
 }
 
-function getMidpointOfPathBBox(string, animationId) {
+function getMidpointOfPathBBox(document, animationId) {
     try {
-        const [xmin, xmax, ymin, ymax] = getPathBBox(string, animationId);
+        const [xmin, xmax, ymin, ymax] = getPathBBox(document, animationId);
         const xMidpoint = (xmin + xmax) / 2;
         const yMidpoint = (ymin + ymax) / 2;
         return [xMidpoint, yMidpoint];
     } catch (e) {
-        console.log(`Could not get midpoint for file ${string} and animation ID ${animationId}: ${e}`);
+        console.log(`Could not get midpoint for file ${document} and animation ID ${animationId}: ${e}`);
         return [0, 0];
     }
 }

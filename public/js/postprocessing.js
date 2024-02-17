@@ -139,13 +139,14 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
         case 4: // animation: rotate
             console.log('rotate')
             let rotate_from_degree = animation[17];
+            let midpoints = getMidpointOfPathBBox(document, animation_id);
             let rotate_to_degree;
             if (i < animationList.length - 1) {
                 rotate_to_degree = animationList[i + 1][17];
             } else {
                 rotate_to_degree = 360;
             }
-            currentAnimations.push(_animation_rotate(animation_id, begin, dur, rotate_from_degree, rotate_to_degree));
+            currentAnimations.push(_animation_rotate(animation_id, begin, dur, rotate_from_degree, rotate_to_degree, midpoints));
             break;
         case 5: // animation: skewX
             console.log('skewX')
@@ -273,7 +274,7 @@ function _animation_scale(animation_id, begin, dur, from_f, to_f) {
     return animation_dict;
 }
 
-function _animation_rotate(animation_id, begin, dur, from_degree, to_degree) {
+function _animation_rotate(animation_id, begin, dur, from_degree, to_degree, midpoints) {
     console.log('animation: rotate');
     const animation_dict = {
         animation_id,
@@ -284,8 +285,8 @@ function _animation_rotate(animation_id, begin, dur, from_degree, to_degree) {
         begin: `${begin}`,
         dur: `${dur}`,
         fill: 'freeze',
-        from: `${from_degree}`,
-        to: `${to_degree}`
+        from: `${from_degree} ${midpoints[0]} ${midpoints[1]}`,
+        to: `${to_degree} ${midpoints[0]} ${midpoints[1]}`
     };
     return animation_dict;
 }
@@ -500,9 +501,9 @@ function insert_animation_id(element){
 // Function for testing
 function test(){
     // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-    let animation_type = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0];
+    let animation_type = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0];
     // Animation parameters (positions 10-25 of animation embedding) 
-    let animation_parameters = [5, 1, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let animation_parameters = [0, 1, 0, 0, 0, 0, 0, 180, 0, 0, 0, 0, 0, 0, 0, 0];
     // Load logo
     let model_output = animation_type.concat(animation_parameters);
     let animation = new Map();
