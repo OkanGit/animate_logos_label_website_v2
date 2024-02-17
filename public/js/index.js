@@ -1,160 +1,111 @@
 /* Define storage and firestore references for easy use in functions */
 const db = firebase.firestore();
-const storage = firebase.storage()
+const storage = firebase.storage();
 const storageRef = storage.ref();
 
+current_logo = "";
+scope = 0;
+logos = [];
 
-/* Display a random Logo for the user to label */
-function random_logo(ablation_id) {
-    if (ablation_id < max_ablation) {
-        db.collection("ablation_animation").where("order_id", "==", ablation_id)
-            .get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    file_id = doc.data().file_id;
-                    animation_file = 'animation_ablation/' + file_id;
-                    storageRef.child(animation_file).getDownloadURL().then(onResolve, onReject);
+function load_all_logos(s){
+    scope = s;
+    return new Promise((resolve, reject) => {
+        $(document).ready(function () {
+            $.get("resources/results_shuffled.txt", function (data) {
+                var lines = data.split('\n');
+                let i = 0;
+                lines.forEach(function (line) {
+                    if (i < scope) {
+                        logos.push(line);
+                        console.log(line);
+                    }
+                    i++;
                 });
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error)
+                resolve(); // Resolve the promise once all logos are loaded
+            }).fail(function() {
+                reject("Could not load logos.");
             });
+        });
+    });
+}
+
+function animate_logo(){
+    const { exec } = require('child_process');
+
+    exec('python resources/postprocessing.py', (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Error executing the Python script: ${error}`);
+        return;
     }
+    console.log(`Python script output: ${stdout}`);
+    });
 }
 
+function generate_random_animations(number_animations){
+    // Generate random model output
+    model_output = [];
+    for (i = 0; i < number_animations; i++){
+        // Set animation type
+        type = Math.floor(Math.random() * 9) + 1;
+        for (i = 0; i < 10; i++){
+            if (i == type){
+                model_output[i] = 1;
+            }
+            else{
+                model_output[i] = 0;
+            }
+        }
+        // Set parameters for the animation type
+        switch(type){
+            case 1:
+                // translate
 
-/* Display the Logo if it could be found in firebase storage */
-function onResolve(foundURL) {
-    document.getElementById("logo").src = foundURL;
-}
-
-
-/* Choose another random Logo if it could not be found in firebase storage */
-function onReject() {
-    random_logo(ablation_id)
-}
-
-
-/* Update highscore of the user and load a new Logo */
-function update_highscore_load_new_image(alias) {
-    const increment = firebase.firestore.FieldValue.increment(1);
-    const storyRef = db.collection('highscore').doc(alias);
-    storyRef.set({score: increment, alias: alias}, {merge: true});
-
-    ablation_id++;
-    localStorage.setItem('ablation_id_local_storage', ablation_id);
-    random_logo(ablation_id)
-
-    /* Reset timer so that the user is able to rate the timing of the animation */
-    let timeleft = 6;
-    let time = setInterval(function () {
-        timeleft--;
-        document.getElementById("timer").textContent = timeleft;
-        if (timeleft <= 0)
-            clearInterval(time);
-    }, 1000);
-
-}
-
-
-/* Add the label "Very Bad" in the database for this animation */
-function add_label_very_bad(file_id, ablation_id) {
-    if (ablation_id < max_ablation) {
-        let alias = document.getElementById("alias").value;
-        db.collection("ablation_label").doc().set({
-            logo: file_id,
-            rating: "Very Bad",
-            alias: alias,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        update_highscore_load_new_image(alias)
-    }
-}
-
-
-/* Add the label "Bad" in the database for this animation */
-function add_label_bad(file_id, ablation_id) {
-    if (ablation_id < max_ablation) {
-        let alias = document.getElementById("alias").value;
-        db.collection("ablation_label").doc().set({
-            logo: file_id,
-            rating: "Bad",
-            alias: alias,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        update_highscore_load_new_image(alias)
-    }
-}
-
-
-/* Add the label "Okay" in the database for this animation */
-function add_label_okay(file_id, ablation_id) {
-    if (ablation_id < max_ablation) {
-        let alias = document.getElementById("alias").value;
-        db.collection("ablation_label").doc().set({
-            logo: file_id,
-            rating: "Okay",
-            alias: alias,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        update_highscore_load_new_image(alias)
-    }
-}
-
-/* Add the label "Good" in the database for this animation */
-function add_label_good(file_id, ablation_id) {
-    if (ablation_id < max_ablation) {
-        let alias = document.getElementById("alias").value;
-        db.collection("ablation_label").doc().set({
-            logo: file_id,
-            rating: "Good",
-            alias: alias,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        update_highscore_load_new_image(alias)
-    }
-}
-
-
-/* Add the label "Very Good" in the database for this animation */
-function add_label_very_good(file_id, ablation_id) {
-    if (ablation_id < max_ablation) {
-        let alias = document.getElementById("alias").value;
-        db.collection("ablation_label").doc().set({
-            logo: file_id,
-            rating: "Very Good",
-            alias: alias,
-            time: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        update_highscore_load_new_image(alias)
-    }
-}
-
-
-/* Initialize the first random animation */
-let ablation_id = Number(localStorage.getItem('ablation_id_local_storage'));
-let animation_file;
-let file_id;
-let max_ablation = 90;
-
-var cart = JSON.parse(localStorage.getItem('cart'));
-    if (!cart) {
-        cart = [];
+            case 2:
+                // curve
+            case 3:
+                // scale
+            case 4:
+                // rotate
+            case 5:
+                // skewX
+            case 6:
+                // skewY
+            case 7:
+                // fill
+            case 8:
+                // opacity
+            case 9:
+                // blur
+            default:
+                break;
+        }
     }
 
-if (!ablation_id) {
-    ablation_id = 0;
 }
 
-random_logo(ablation_id)
+function load_random_logo(){
+    number = Math.floor(Math.random() * scope);
+    console.log("Load random number: " + number);
+    current_logo = "logo_" + number;
+    
+    const http = require('http'); // or 'https' for https:// URLs
+    const fs = require('fs');
 
-/* Set timer so that the user is able to rate the timing of the animation */
-let timeleft = 6;
-let time = setInterval(function () {
-    timeleft--;
-    document.getElementById("timer").textContent = timeleft;
-    if (timeleft <= 0)
-        clearInterval(time);
-}, 1000);
+    const file = fs.createWriteStream("resources/logo.svg");
+    const request = http.get(logos[number], function(response) {
+        response.pipe(file);
 
+        // after download completed close filestream
+        file.on("finish", () => {
+            file.close();
+            console.log("Download Completed");
+        });
+    });
+}
 
+async function initialize(){
+    console.log("initialize");
+    await load_all_logos(2000)
+        .then(load_random_logo)
+        .catch(error => console.log(error));
+}

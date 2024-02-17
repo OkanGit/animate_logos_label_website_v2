@@ -5,6 +5,7 @@
   },
   "hosting": {
     "public": "public",
+    "site": "rate-logos",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -13,5 +14,17 @@
   },
   "storage": {
     "rules": "storage.rules"
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
+    }
+  ]
 }

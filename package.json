@@ -1,0 +1,21 @@
+{
+  "name": "animate_logos_label_website_v2",
+  "version": "1.0.0",
+  "description": "This website belongs to the GitHub repository https://github.com/J4K08L4N63N84HN/animate_logos.git.\r It can be visited at https://animate-logos.web.app/.\r The website is based on a Google Firebase backend and used to rate SVG logo animations. \r These ratings are then used as examples to train a model which learns to generate aesthetic animations for a given SVG logo.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.4",
+    "express": "^4.18.2",
+    "firebase": "^10.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
