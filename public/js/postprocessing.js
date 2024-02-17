@@ -457,3 +457,15 @@ function _get_filter_element(document) {
 function randomly_animate_logo(logo_path, target_path, number_of_animations, previously_generated) {
     // Implementation of randomly_animate_logo
 }
+
+// Function for testing
+function test(){
+    // Change model output
+    model_output = []
+    // Load logo
+    $(document).ready(function () {
+        $.get("https://cdn.worldvectorlogo.com/logos/keithley.svg", function (data) {
+            animate_logo(model_output, data)
+        });
+    });
+}
