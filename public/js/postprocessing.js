@@ -3,6 +3,8 @@ let global_animation_id = 0;
 
 function animate_logo(model_output, logo_document) {
     let boundary = getSvgBBox(logo_document);
+    console.log('boundary')
+    console.log(boundary)
     const logo_xmin = boundary.x;
     const logo_xmax = boundary.x + boundary.width;
     const logo_ymin = boundary.y;
@@ -24,15 +26,19 @@ function animate_logo(model_output, logo_document) {
     for (const animation_id of animations_by_id.keys()) {
         const animations = animations_by_id.get(animation_id)
         let boundary = getPathBBox(logo_document, animation_id)
+        
         const path_xmin = boundary[0];
         const path_xmax = boundary[1];
         const path_ymin = boundary[2];
         const path_ymax = boundary[3];
-        const xmin = path_xmin - logo_xmin;
+        const xmin = logo_xmin - path_xmin;
         const xmax = logo_xmax - path_xmax;
-        const ymin = path_ymin - logo_ymin;
+        const ymin = logo_ymin - path_ymin;
         const ymax = logo_ymax - path_ymax;
-
+        console.log('xmin')
+        console.log(path_xmin)
+        console.log(logo_xmin)
+        console.log(xmin)
         const animations_by_type = new Map();
         for (const animation of animations) {
             if (animation[0] === 1) continue;
@@ -410,7 +416,7 @@ function _insert_animations(animations, document) {
     }
 
     const result = new XMLSerializer().serializeToString(document);
-    //console.log(result)
+    console.log(result)
 }
 
 function _create_animate_transform_statement(animation) {
@@ -496,12 +502,12 @@ function test(){
     // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
     let animation_type = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0];
     // Animation parameters (positions 10-25 of animation embedding) 
-    let animation_parameters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let animation_parameters = [5, 1, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     // Load logo
     let model_output = animation_type.concat(animation_parameters);
     let animation = new Map();
     // set animation for animation id 0
-    animation.set(0, model_output);
+    animation.set(1, model_output);
     let test_data = [];
     test_data.push(animation)
     $(document).ready(function () {
@@ -516,7 +522,7 @@ function test(){
             elements.forEach(insert_animation_id)
             // animate
             animate_logo(test_data, document)
-            document.getElementById("logo").innerHTML = ""
+            //document.getElementById("logo").innerHTML = ""
         });
     });
 }

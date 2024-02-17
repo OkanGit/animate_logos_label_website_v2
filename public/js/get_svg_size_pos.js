@@ -68,7 +68,7 @@ function getSvgSize(document) {
 
 
 /*export*/ function getSvgBBox(document) {
-    let bbox = computeBoundingBox(document.getElementsByTagName('svg')[0]);
+    let bbox = document.getElementsByTagName('svg')[0].getBBox();
     return bbox
     /*try {
         const paths = svg2paths(document);
