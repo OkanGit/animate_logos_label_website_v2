@@ -22,6 +22,7 @@ function animate_logo(model_output, logo_document) {
     }
 
     const total_animations = [];
+    console.log('animations by id')
     console.log(animations_by_id)
     for (const animation_id of animations_by_id.keys()) {
         const animations = animations_by_id.get(animation_id)
@@ -35,10 +36,6 @@ function animate_logo(model_output, logo_document) {
         const xmax = logo_xmax - path_xmax;
         const ymin = logo_ymin - path_ymin;
         const ymax = logo_ymax - path_ymax;
-        console.log('xmin')
-        console.log(path_xmin)
-        console.log(logo_xmin)
-        console.log(xmin)
         const animations_by_type = new Map();
         for (const animation of animations) {
             if (animation[0] === 1) continue;
@@ -91,8 +88,6 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
         case 1: // animation: translate
             console.log('translate')
             let from_x = animation[12];
-            console.log(from_x)
-            console.log(xmin)
             let from_y = animation[13];
             let to_x, to_y;
             if (i < animationList.length - 1) {
@@ -104,7 +99,6 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
             }
             // Check if parameters are within boundary
             from_x = Math.min(Math.max(from_x, xmin), xmax);
-            console.log(from_x)
             from_y = Math.min(Math.max(from_y, ymin), ymax);
             to_x = Math.min(Math.max(to_x, xmin), xmax);
             to_y = Math.min(Math.max(to_y, ymin), ymax);
@@ -400,6 +394,7 @@ function _insert_animations(animations, document) {
                 break;
             }
         }
+        console.log(!current_element)
         if (!current_element) continue;
         let animate_statement = null;
         switch (animation.animation_type) {
@@ -466,6 +461,7 @@ function _create_animate_transform_statement(animation) {
     animate_transform.setAttribute('fill', animation.fill);
     animate_transform.setAttribute('from', animation.from);
     animate_transform.setAttribute('to', animation.to);
+    animate_transform.setAttribute('additive', 'sum')
     return animate_transform;
 }
 
@@ -477,6 +473,7 @@ function _create_animate_motion_statement(animation) {
     animate_motion.setAttribute('from', animation.from);
     animate_motion.setAttribute('to', animation.to);
     animate_motion.setAttribute('path', `M${animation.from} Q${animation.via} ${animation.to}`);
+    animate_motion.setAttribute('additive', 'sum')
     return animate_motion;
 }
 
@@ -490,6 +487,7 @@ function _create_animate_statement(animation) {
     animate.setAttribute('fill', animation.fill);
     animate.setAttribute('from', animation.from);
     animate.setAttribute('to', animation.to);
+    animate.setAttribute('additive', 'sum')
     return animate;
 }
 
@@ -513,14 +511,6 @@ function _get_filter_element(document, animation_id, animation) {
         current_fe.setAttribute('id', `filter_blur_${animation_id}`)
         current_fe.setAttribute('stdDeviation', '0')
     }
-    animate_statement = `animate href="#filter_blur_${animation_id}" `+ 
-                `attributeName="stdDeviation" ` + 
-                `begin="${animation.begin}" ` + 
-                `dur="${animation.dur}" ` + 
-                `from="${animation.from}" ` + 
-                `to="${animation.to}" ` + 
-                `fill="${animation.fill}" ` + 
-                `additive="sum"`;
     animate_element = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
     animate_element.setAttribute('href', `#filter_blur_${animation_id}`);
     animate_element.setAttribute('attributeName', 'stdDeviation');
@@ -549,7 +539,6 @@ function get_all_elements(document){
     texts = Array.from(document.getElementsByTagName('text'))
     elements = [];
     elements = elements.concat(paths, circles, ellipses, lines, polygons, polylines, rects, texts)
-    console.log(elements)
     return elements
     
 }
