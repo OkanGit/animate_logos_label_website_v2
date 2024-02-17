@@ -78,6 +78,14 @@ function animate_logo(model_output, logo_document) {
     _insert_animations(total_animations, logo_document);
 }
 
+function _convertToHexStr(n){
+    let h = n.toString(16);
+    if (n < 16) {
+        h = '0' + h;
+    }
+    return h;
+}
+
 function handleAnimation(animation_id, i, animationList, animationType, animation, currentAnimations, xmin, xmax, ymin, ymax, begin, dur) {
     switch (animationType) {
         case 1: // animation: translate
@@ -183,15 +191,17 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
             } else {
                 // Get fill style from SVG
                 // Note: You need to implement getStyleAttributesPath function in JavaScript
-                /*let fillStyle = getStyleAttributesPath(logoString, animation_id, "fill");
-                let strokeStyle = getStyleAttributesPath(logoString, animation_id, "stroke");
+                let fillStyle = getStyleAttributesPath(document, animation_id, "fill");
+                if (fillStyle == null) fillStyle = "none";
+                let strokeStyle = getStyleAttributesPath(document, animation_id, "stroke");
+                if (strokeStyle == null) strokeStyle = "none";
                 if (fillStyle === "none" && strokeStyle !== "none") {
                     colorHex = strokeStyle;
                 } else {
                     colorHex = fillStyle;
                 }
-                to_rgb = colorHex;*/
-                to_rgb = "#000"
+                to_rgb = colorHex;
+                //to_rgb = "#000"
             }
             currentAnimations.push(_animation_fill(animation_id, begin, dur, from_rgb, to_rgb));
             break;
@@ -329,8 +339,8 @@ function _animation_fill(animation_id, begin, dur, from_rgb, to_rgb) {
     console.log('animation: fill');
     const animation_dict = {
         animation_id,
-        animation_type: 'animate_transform',
-        attributeName: 'transform',
+        animation_type: 'animate',
+        attributeName: 'fill',
         attributeType: 'XML',
         type: 'fill',
         begin: `${begin}`,
@@ -346,8 +356,8 @@ function _animation_opacity(animation_id, begin, dur, from_f, to_f) {
     console.log('animation: opacity');
     const animation_dict = {
         animation_id,
-        animation_type: 'animate_transform',
-        attributeName: 'transform',
+        animation_type: 'animate',
+        attributeName: 'opacity',
         attributeType: 'XML',
         type: 'opacity',
         begin: `${begin}`,
@@ -403,14 +413,40 @@ function _insert_animations(animations, document) {
                 animate_statement = _create_animate_statement(animation);
                 break;
             case 'animate_filter':
-                const [filter_element, filter_id] = _get_filter_element(document);
-                animate_statement = _create_animate_statement(animation);
-                filter_element.appendChild(animate_statement);
-                current_element.setAttribute('filter', `url(#${filter_id})`);
+                const filter = _get_filter_element(document, animation.animation_id, animation);
+                let filter_element = filter[0];
+                let fe_element = filter[1];
+                let animate_element = filter[2]
+                // Search for defs element
+                defs = document.getElementsByTagName('defs')
+                let current_defs = null
+                if (defs.length == 0){
+                    svg = document.getElementsByTagName('svg')[0];
+                    current_defs = document.createElement('defs');
+                    svg.appendChild(current_defs);
+                }
+                else{
+                    current_defs = defs[0];
+                }
+                if (filter_element != null){
+                    current_defs.appendChild(filter_element);
+                }
+                if (fe_element != null){
+                    if(filter_element == null){
+                        let id = `filter_${animation.animation_id}`;
+                        for (f of document.getElementsByTagName('filter')){
+                            if(f.getAttribute('id') == id){
+                                filter_element = f;
+                            }
+                        }
+                    }
+                    
+                    filter_element.appendChild(fe_element);
+                }
+                current_defs.appendChild(animate_element);
+                current_element.setAttribute('filter', `url(#${filter_element.getAttribute('id')})`);
                 break;
         }
-        console.log('Statement')
-        console.log(animate_statement)
         if (animate_statement) {
             current_element.appendChild(animate_statement);
         }
@@ -457,20 +493,44 @@ function _create_animate_statement(animation) {
     return animate;
 }
 
-function _get_filter_element(document) {
-
+function _get_filter_element(document, animation_id, animation) {
     const filter_elements = document.getElementsByTagName('filter');
-    if (filter_elements.length > 0) {
-        filter_id = filter_elements[0].getAttribute('id');
-    } else {
-        const filter_element = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
-        filter_id = filter_id + 1;
-        filter_element.setAttribute('id', `filter${filter_id}`);
-        filter_element.setAttribute('width', '150%');
-        filter_element.setAttribute('height', '150%');
-        document.getElementsByTagName('svg')[0].appendChild(filter_element);
+    let current_filter = null;
+    let current_fe = null;
+    for (const filter of filter_elements){
+        if(filter.getAttribute('id') == `filter_${animation_id}`) current_filter = f;
     }
-    return [document.getElementById(`filter${filter_id}`), filter_id];
+    const fe_elements = document.getElementsByTagName('feGaussianBlur');
+    for (const fe of fe_elements){
+        if(fe.getAttribute('id') == `filter_blur_${animation_id}`) current_fe = fe;
+    }
+    if (current_filter == null){
+        current_filter = document.createElement('filter');
+        current_filter.setAttribute('id', `filter_${animation_id}`);
+    }
+    if (current_fe == null){
+        current_fe = document.createElement('feGaussianBlur')
+        current_fe.setAttribute('id', `filter_blur_${animation_id}`)
+        current_fe.setAttribute('stdDeviation', '0')
+    }
+    animate_statement = `animate href="#filter_blur_${animation_id}" `+ 
+                `attributeName="stdDeviation" ` + 
+                `begin="${animation.begin}" ` + 
+                `dur="${animation.dur}" ` + 
+                `from="${animation.from}" ` + 
+                `to="${animation.to}" ` + 
+                `fill="${animation.fill}" ` + 
+                `additive="sum"`;
+    animate_element = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+    animate_element.setAttribute('href', `#filter_blur_${animation_id}`);
+    animate_element.setAttribute('attributeName', 'stdDeviation');
+    animate_element.setAttribute('begin', animation.begin);
+    animate_element.setAttribute('dur', animation.dur);
+    animate_element.setAttribute('fill', animation.fill);
+    animate_element.setAttribute('from', animation.from);
+    animate_element.setAttribute('to', animation.to);
+    animate_element.setAttribute('additive', 'sum')
+    return [current_filter, current_fe, animate_element];
 }
 
 
@@ -501,9 +561,9 @@ function insert_animation_id(element){
 // Function for testing
 function test(){
     // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-    let animation_type = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0];
+    let animation_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
     // Animation parameters (positions 10-25 of animation embedding) 
-    let animation_parameters = [0, 1, 0, 0, 0, 0, 0, 180, 0, 0, 0, 0, 0, 0, 0, 0];
+    let animation_parameters = [0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1000, 0];
     // Load logo
     let model_output = animation_type.concat(animation_parameters);
     let animation = new Map();
