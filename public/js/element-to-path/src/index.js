@@ -1,4 +1,4 @@
-import { chunkArray, calcValue } from './utils'
+//import { chunkArray, calcValue } from './utils'
 
 const rect = attrs => {
   const w = +attrs.width
@@ -76,11 +76,10 @@ const toPathString = d => {
 }
 // Changed to convert DOM element to DOM element
 const elementToPath = (element) => {
-  parent = element.parentNode
-  parent.removeChild(element)
+  console.log(parent)
   inner = element.innerHTML
-  const name = node[nodeName]
-  const attributes = node[nodeAttrs]
+  const name = element.tagName
+  const attributes = element.attributes
   let d
   if (name === 'rect') {
     d = rect(attributes)
@@ -103,15 +102,18 @@ const elementToPath = (element) => {
   }
 
   if (name === 'path') {
-    return attributes.d
+    return element
   }
-
+  parent = element.parentNode
+  parent.removeChild(element)
   const parser = new DOMParser();
   const xmlDoc = parser.parseFromString(toPathString(d), 'text/xml');
   const parsedNodes = xmlDoc.documentElement.childNodes;
   node = parsedNodes[0]
+  console.log('Node')
+  console.log(node)
   parent.appendChild(node);
   return node
 }
 
-export default elementToPath
+//export default elementToPath

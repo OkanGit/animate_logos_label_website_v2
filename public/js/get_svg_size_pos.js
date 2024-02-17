@@ -1,8 +1,9 @@
-import {elementToPath} from "./element-to-path/src/index"
+//import {elementToPath} from "./element-to-path/src/index"
 
-function getSvgSize(string) {
-    const doc = parseFromString(string);
-    const svgElement = doc.getElementsByTagName('svg')[0];
+function getSvgSize(document) {
+    //const doc = parseFromString(string);
+    const svgElement = document.getElementsByTagName('svg')[0];
+    console.log(svgElement)
     let width = svgElement.getAttribute('width') || "";
     let height = svgElement.getAttribute('height') || "";
 
@@ -19,7 +20,11 @@ function getSvgSize(string) {
         let xminSvg = 100, xmaxSvg = -100, yminSvg = 100, ymaxSvg = -100;
         const paths = svg2paths(string);
         paths.forEach(path => {
-            const { xmin, xmax, ymin, ymax } = path.bbox();
+            const bbox = path.getBBox();
+            const xmin = bbox.x;
+            const xmax = bbox.x + bbox.width;
+            const ymin = bbox.y;
+            const ymax = bbox.y + bbox.height
             if (xmin < xminSvg) xminSvg = xmin;
             if (xmax > xmaxSvg) xmaxSvg = xmax;
             if (ymin < yminSvg) yminSvg = ymin;
@@ -32,12 +37,16 @@ function getSvgSize(string) {
     return [parseFloat(width), parseFloat(height)];
 }
 
-export function getSvgBBox(string) {
+/*export*/ function getSvgBBox(document) {
     try {
-        const paths = svg2paths(string);
+        const paths = svg2paths(document);
         let xminSvg = 100, xmaxSvg = -100, yminSvg = 100, ymaxSvg = -100;
         paths.forEach(path => {
-            const { xmin, xmax, ymin, ymax } = path.bbox();
+            const bbox = path.getBBox();
+            const xmin = bbox.x;
+            const xmax = bbox.x + bbox.width;
+            const ymin = bbox.y;
+            const ymax = bbox.y + bbox.height
             if (xmin < xminSvg) xminSvg = xmin;
             if (xmax > xmaxSvg) xmaxSvg = xmax;
             if (ymin < yminSvg) yminSvg = ymin;
@@ -45,23 +54,27 @@ export function getSvgBBox(string) {
         });
         return [xminSvg, xmaxSvg, yminSvg, ymaxSvg];
     } catch (e) {
-        console.log(`${string}: svg2path fails. SVG bbox is computed by using getSvgSize. ${e}`);
-        const [width, height] = getSvgSize(string);
+        console.log(`${document}: svg2path fails. SVG bbox is computed by using getSvgSize. ${e}`);
+        const [width, height] = getSvgSize(document);
         return [0, width, 0, height];
     }
 }
 
-export function getPathBBox(string, animationId) {
+/*export*/ function getPathBBox(document, animationId) {
     try {
-        const paths = svg2paths(string);
+        const paths = svg2paths(document);
         for (let i = 0; i < paths.length; i++) {
             if (paths[i].attributes.animation_id === animationId.toString()) {
-                const { xmin, xmax, ymin, ymax } = paths[i].bbox();
+                const bbox = path.getBBox();
+                const xmin = bbox.x;
+                const xmax = bbox.x + bbox.width;
+                const ymin = bbox.y;
+                const ymax = bbox.y + bbox.height
                 return [xmin, xmax, ymin, ymax];
             }
         }
     } catch (e) {
-        console.log(`${string}, animation ID ${animationId}: svg2path fails and path bbox cannot be computed. ${e}`);
+        console.log(`${document}, animation ID ${animationId}: svg2path fails and path bbox cannot be computed. ${e}`);
     }
     return [0, 0, 0, 0];
 }
@@ -136,15 +149,19 @@ function getBeginValuesByStartingPos(string, animationIds, start = 1, step = 0.5
     return beginValues;
 }
 
-function svg2paths(string){
-    document = parseFromString(string)
+function svg2paths(document){
+    paths = Array.from(document.getElementsByTagName('path'))
+    circles = Array.from(document.getElementsByTagName('circle'))
+    ellipses = Array.from(document.getElementsByTagName('ellipse'))
+    lines = Array.from(document.getElementsByTagName('line'))
+    polygons = Array.from(document.getElementsByTagName('polygon'))
+    polylines = Array.from(document.getElementsByTagName('polyline'))
+    rects = Array.from(document.getElementsByTagName('rect'))
+    texts = Array.from(document.getElementsByTagName('text'))
     elements = [];
-    elements = elements.concat(document.getElementsByTagName('path'), document.getElementsByTagName('circle'), 
-        document.getElementsByTagName('ellipse'), document.getElementsByTagName('line'), document.getElementsByTagName('polygon'),
-        document.getElementsByTagName('polyline'), document.getElementsByTagName('rect'), document.getElementsByTagName('text'))
-    for (element in elements){
-        element = elementToPath(element)
-    }
+    elements = elements.concat(paths, circles, ellipses, lines, polygons, polylines, rects, texts)
+    console.log(elements)
+    elements.forEach(elementToPath)
     return elements
 }
 

@@ -1,9 +1,7 @@
-import { getSvgBBox, getPathBBox } from "./get_svg_size_pos";
-
 let filter_id = 0;
 
-function animate_logo(model_output, logo_string) {
-    boundary = getSvgBBox(logo_string);
+function animate_logo(model_output, logo_document) {
+    boundary = getSvgBBox(logo_document);
     const logo_xmin = boundary[0];
     const logo_xmax = boundary[1];
     const logo_ymin = boundary[2];
@@ -67,13 +65,14 @@ function animate_logo(model_output, logo_string) {
             total_animations.push(...current_animations);
         }
     }
-    _insert_animations(total_animations, logo_string, logo_string);
+    _insert_animations(total_animations, logo_document);
 }
 
 function handleAnimation(animationType, animation, currentAnimations, xmin, xmax, ymin, ymax) {
 
     switch (animationType) {
         case 1: // animation: translate
+            console.log('translate')
             let from_x = animation[12];
             let from_y = animation[13];
             let to_x, to_y;
@@ -92,6 +91,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_translate(animation_id, begin, dur, from_x, from_y, to_x, to_y));
             break;
         case 2: // animation: curve
+            console.log('curve')
             let curve_from_x = animation[12];
             let curve_from_y = animation[13];
             let via_x = animation[14];
@@ -114,6 +114,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_curve(animation_id, begin, dur, curve_from_x, curve_from_y, via_x, via_y, curve_to_x, curve_to_y));
             break;
         case 3: // animation: scale
+            console.log('scale')
             let scale_from_f = animation[16];
             let scale_to_f;
             if (i < animationList.length - 1) {
@@ -124,6 +125,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_scale(animation_id, begin, dur, scale_from_f, scale_to_f));
             break;
         case 4: // animation: rotate
+            console.log('rotate')
             let rotate_from_degree = animation[17];
             let rotate_to_degree;
             if (i < animationList.length - 1) {
@@ -134,6 +136,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_rotate(animation_id, begin, dur, rotate_from_degree, rotate_to_degree));
             break;
         case 5: // animation: skewX
+            console.log('skewX')
             let skewX_from_x = animation[18];
             let skewX_to_x;
             if (i < animationList.length - 1) {
@@ -146,6 +149,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_skewX(animation_id, begin, dur, skewX_from_x, skewX_to_x));
             break;
         case 6: // animation: skewY
+            console.log('skewY')
             let skewY_from_y = animation[19];
             let skewY_to_y;
             if (i < animationList.length - 1) {
@@ -158,6 +162,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_skewY(animation_id, begin, dur, skewY_from_y, skewY_to_y));
             break;
         case 7: // animation: fill
+            console.log('fill')
             let from_rgb = '#' + _convertToHexStr(animation[20]) + _convertToHexStr(animation[21]) + _convertToHexStr(animation[22]);
             let to_rgb;
             if (i < animationList.length - 1) {
@@ -177,6 +182,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_fill(animation_id, begin, dur, from_rgb, to_rgb));
             break;
         case 8: // animation: opacity
+            console.log('opacity')
             let opacity_from_f = animation[23] / 100; // percent
             let opacity_to_f;
             if (i < animationList.length - 1) {
@@ -187,6 +193,7 @@ function handleAnimation(animationType, animation, currentAnimations, xmin, xmax
             currentAnimations.push(_animation_opacity(animation_id, begin, dur, opacity_from_f, opacity_to_f));
             break;
         case 9: // animation: blur
+            console.log('blur')
             let blur_from_f = animation[24];
             let blur_to_f;
             if (i < animationList.length - 1) {
@@ -355,9 +362,8 @@ function _animation_blur(animation_id, begin, dur, from_f, to_f) {
     return animation_dict;
 }
 
-function _insert_animations(animations, logo_string) {
+function _insert_animations(animations, document) {
     console.log('Insert animations');
-    const document = new DOMParser().parseFromString(logo_string, 'image/svg+xml');
     const elements = document.getElementsByTagName('path').concat(document.getElementsByTagName('circle'))
         .concat(document.getElementsByTagName('ellipse')).concat(document.getElementsByTagName('line'))
         .concat(document.getElementsByTagName('polygon')).concat(document.getElementsByTagName('polyline'))
@@ -460,9 +466,12 @@ function randomly_animate_logo(logo_path, target_path, number_of_animations, pre
 
 // Function for testing
 function test(){
-    // Change model output
-    model_output = []
+    // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
+    animation_type = [0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    // Animation parameters (positions 10-25 of animation embedding) 
+    animation_parameters = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     // Load logo
+    model_output = animation_type.concat(animation_parameters)
     $(document).ready(function () {
         $.get("https://cdn.worldvectorlogo.com/logos/keithley.svg", function (data) {
             animate_logo(model_output, data)
