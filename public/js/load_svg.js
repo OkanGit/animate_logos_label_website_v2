@@ -51,7 +51,7 @@ function generate_data(previous_output, max_animation_id){
     data = [];
     for (i=0; i < number_animations; i++){
         // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-        let type = Math.floor(Math.random() * 2) + 1; // TODO change back
+        let type = Math.floor(Math.random() * 9) + 1; //  --- DOne --- TODO change back
         let animation_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         animation_type[type] = 1;
         // Animation parameters (positions 10-25 of animation embedding) 

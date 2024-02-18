@@ -77,7 +77,9 @@ function animate_logo(model_output, logo_document) {
                 joint_list.push(...animations_by_type.get(animation_type))
             }
             
-            animationList.sort((a, b) => a[10] - b[10]); // Sort by begin
+            joint_list.sort((a, b) => a[10] - b[10]); // Sort by begin
+            console.log('sort');
+            console.log(joint_list)
             for (let i = 0; i < joint_list.length; i++){
                 if (joint_list.length > 1){
                     let j = 1;
