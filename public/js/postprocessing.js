@@ -85,14 +85,20 @@ function animate_logo(model_output, logo_document) {
                     let j = 1;
                     let next_animation = joint_list[j];
                     // Get next animation with different begin time
-                    while((i+i) < joint_list.length && joint_list[i][10] == next_animation[10]){
+                    while((i+j) < joint_list.length - 1 && joint_list[i][10] == next_animation[10]){
                         j++;
                         next_animation = joint_list[j];
                     }
                     if (j != 1){
-                        // Get difference
-                        let difference = joint_list[j][10] - joint_list[i][10];
-                        let interval = difference / (j - i);
+                        let interval;
+                        if (joint_list[i][10] == joint_list[j][10]){
+                            interval = 1; // Predefined interval if until last animation all have same begin
+                        }
+                        else{
+                            // Get difference
+                            let difference = joint_list[j][10] - joint_list[i][10];
+                            interval = difference / (j - i);
+                        }
                         let factor = 0;
                         for (a = i; a < j; a++){
                             joint_list[a][10] = joint_list[i][10] + interval * factor;
@@ -102,6 +108,8 @@ function animate_logo(model_output, logo_document) {
                     // Check duration
                     if (i < joint_list.length - 1){
                         let max_dur = joint_list[i+1][10] - joint_list[i][10];
+                        console.log('max dur')
+                        console.log(max_dur)
                         if (joint_list[i][11] > max_dur){
                             joint_list[i][11] = max_dur;
                         }
@@ -289,7 +297,7 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
             if (i < animationList.length - 1) {
                 blur_to_f = animationList[i + 1][24];
             } else {
-                blur_to_f = 1;
+                blur_to_f = 0;
             }
             currentAnimations.push(_animation_blur(animation_id, begin, dur, blur_from_f, blur_to_f));
             break;
@@ -568,7 +576,7 @@ function _get_filter_element(document, animation_id, animation) {
     let current_filter = null;
     let current_fe = null;
     for (const filter of filter_elements){
-        if(filter.getAttribute('id') == `filter_${animation_id}`) current_filter = f;
+        if(filter.getAttribute('id') == `filter_${animation_id}`) current_filter = filter;
     }
     const fe_elements = document.getElementsByTagName('feGaussianBlur');
     for (const fe of fe_elements){
@@ -591,7 +599,8 @@ function _get_filter_element(document, animation_id, animation) {
     animate_element.setAttribute('fill', animation.fill);
     animate_element.setAttribute('from', animation.from);
     animate_element.setAttribute('to', animation.to);
-    animate_element.setAttribute('additive', 'sum')
+    animate_element.setAttribute('additive', 'sum');
+    animate_element.setAttribute('fill', 'freeze')
     return [current_filter, current_fe, animate_element];
 }
 

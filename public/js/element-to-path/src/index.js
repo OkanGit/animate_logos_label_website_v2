@@ -76,7 +76,6 @@ const toPathString = d => {
 }
 // Changed to convert DOM element to DOM element
 const elementToPath = (element) => {
-  console.log(parent)
   inner = element.innerHTML
   const name = element.tagName
   const attributes = element.attributes

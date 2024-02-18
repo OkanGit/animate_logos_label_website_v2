@@ -225,6 +225,12 @@ svg{
   height: 100%;
 }
 
+filter feGaussianBlur animate {
+  position: absolute;
+  height: 0;
+  width: 0;
+}
+
 .buttons {
   grid-area: buttons;
   margin-bottom: 0.5rem;

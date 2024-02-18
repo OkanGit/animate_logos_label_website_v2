@@ -1,10 +1,6 @@
-//const fs = require('fs');
-//const { exec } = require('child_process');
-//const axios = require('axios');
-
-scope = 2000;
-current_logo = "";
-current_data = null;
+let scope = 2000;
+let current_logo = "";
+let current_data = null;
 
 
 function load_random_logo(){
@@ -28,8 +24,8 @@ function load_random_logo(){
             current_logo = filename;
             const url = line[1];
             $.get(url, function (data) {
-                const result = new XMLSerializer().serializeToString(data);
-                document.getElementById("logo").innerHTML = result;
+                const result1 = new XMLSerializer().serializeToString(data);
+                document.getElementById("logo").innerHTML = result1;
                 // insert animation id
                 elements = get_all_elements(document);
                 elements.forEach(insert_animation_id);
@@ -38,7 +34,8 @@ function load_random_logo(){
                 console.log(data)
                 // animate
                 animate_logo(data, document)
-                //document.getElementById("logo").innerHTML = ""
+                const result2 = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
+                document.getElementById("logo").innerHTML = result2;
             });
         });
     });
@@ -46,17 +43,21 @@ function load_random_logo(){
 
 function generate_data(previous_output, max_animation_id){
     // Random number of animations; max as number of paths
-    let number_animations = Math.floor(Math.random() * max_animation_id) + 1;
+    //let number_animations = Math.floor(Math.random() * max_animation_id) + 1;
+    let number_animations = 1
     // Generate animations
     data = [];
     for (i=0; i < number_animations; i++){
         // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-        let type = Math.floor(Math.random() * 9) + 1; //  --- DOne --- TODO change back
+        //let type = Math.floor(Math.random() * 9) + 1; //  --- DOne --- TODO change back
+        let type = 9;
         let animation_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         animation_type[type] = 1;
         // Animation parameters (positions 10-25 of animation embedding) 
-        let begin = Math.random() * 20; // Maximum 20s; no flooring as value is float
-        let dur = Math.random() * 20; // Maximum 20s; no flooring as value is float
+        //let begin = Math.floor(Math.random() * 20); // Maximum 20s; no flooring as value is float
+        //let dur = Math.floor(Math.random() * 20) + 1; // Min 1s; Maximum 20s; no flooring as value is float
+        let begin = 0;
+        let dur = 3;
         let from_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let from_y = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let via_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
@@ -70,7 +71,7 @@ function generate_data(previous_output, max_animation_id){
         let b = Math.floor(Math.random() * 256) // Min 0, Max 255
         let opacity = Math.random() * 101 // Min 0, Max 100
         if (opacity > 100) opacity = 100;
-        let blur = Math.floor(Math.random() * 50)
+        let blur = Math.floor(Math.random() * 100)
         let animation_parameters = [begin, dur, from_x, from_y, via_x, via_y, scale, rotate, skew_x, skew_y, r, g, b, opacity, blur, 0];
 
         let model_output = animation_type.concat(animation_parameters);
@@ -89,6 +90,14 @@ function get_current_logo(){
 
 function get_current_data(){
     return current_data;
+}
+
+function set_current_logo(logo){
+    current_logo = logo;
+}
+
+function set_current_data(data){
+    current_data = data;
 }
 
 
