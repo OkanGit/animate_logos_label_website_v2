@@ -40,7 +40,7 @@ function animate_logo(model_output, logo_document) {
         for (const animation of animations) {
             if (animation[0] === 1) continue;
             try {
-                const animation_type = animation.slice(1, 10).indexOf(1);
+                const animation_type = animation.slice(0, 10).indexOf(1);
                 if (!animations_by_type.has(animation_type)) {
                     animations_by_type.set(animation_type, []);
                 }
@@ -54,19 +54,70 @@ function animate_logo(model_output, logo_document) {
         for (const animation_type of animations_by_type.keys()) {
             const animationList = animations_by_type.get(animation_type)
             const current_animations = [];
+            
+            // Normalize begin and duration
+            // For this step, merge translate and curve
+            const joint_list = [];
+            if (animation_type == 1 || animation_type == 2){
+                // get joint list
+                extended_arr_1 = animations_by_type.get(1).forEach((a) => a.push(1));
+                extended_arr_2 = animations_by_type.get(2).forEach((a) => a.push(2));
+                joint_list.push(...extended_arr_1);
+                joint_list.push(...extended_arr_2);
+            }
+            else{
+                joint_list.push(...animations_by_type.get(animation_type))
+            }
             animationList.sort((a, b) => a[10] - b[10]); // Sort by begin
-            for (let i = 0; i < animationList.length; i++) {
-                const animation = animationList[i];
+            for (let i = 0; i < joint_list.length; i++){
+                if (joint_list.length > 1){
+                    let j = 1;
+                    let next_animation = joint_list[j];
+                    // Get next animation with different begin time
+                    while((i+i) < joint_list.length && joint_list[i][10] == next_animation[10]){
+                        j++;
+                        next_animation = joint_list[j];
+                    }
+                    if (j != 1){
+                        // Get difference
+                        let difference = joint_list[j][10] - joint_list[i][10];
+                        let interval = difference / (j - i);
+                        let factor = 0;
+                        for (a = i; a < j; a++){
+                            joint_list[a][10] = joint_list[i][10] + interval * factor;
+                            factor++;
+                        }
+                    }
+                    // Check duration
+                    if (i < joint_list.length - 1){
+                        let max_dur = joint_list[i+1][10] - joint_list[i][10];
+                        if (joint_list[i][11] > max_dur){
+                            joint_list[i][11] = max_dur;
+                        }
+                    }
+                }
+            }
+            let final_list = []
+            for (let i = 0; i < joint_list.length; i++){
+                if (animation_type == 1 || animation_type == 2){
+                    if(animation_type == joint_list[joint_list.length - 1]){
+                        final_list.push(joint_list[i].slice(0, joint_list.length - 1))
+                    }
+                    else{
+                        continue;
+                    }
+                }
+                else{
+                    final_list.push(joint_list[i]);
+                }
+            }
+
+            for (let i = 0; i < final_list.length; i++) {
+                
+                const animation = final_list[i];
                 let begin = animation[10];
                 let dur = animation[11];
-                let animationType;
-                try {
-                    animationType = animation.slice(0, 10).indexOf(1);
-                } catch (error) {
-                    console.log('Model output invalid: no animation type found');
-                    return;
-                }
-                handleAnimation(animation_id, i, animationList, animationType, animation, current_animations, xmin, xmax, ymin, ymax, begin, dur);
+                handleAnimation(animation_id, i, final_list, animation_type, animation, current_animations, xmin, xmax, ymin, ymax, begin, dur);
                 
             }
             total_animations.push(...current_animations);
