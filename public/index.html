@@ -60,6 +60,7 @@
     <script src="./js/get_svg_size_pos.js"></script>
     <script src="./js/postprocessing.js"></script>
     <script src="./js/load_svg.js"></script>
+    <script src="./js/rating.js"></script>
 
     <script>
         main();
@@ -116,12 +117,12 @@
             <span id="name-form">
                 <form class="buttons">
                     <!-- Rating buttons -->
-                    <button class="btn" id="btn1" onclick="" type="button">Very
+                    <button class="btn" id="btn1" onclick="save_label(0)" type="button">Very
                         bad</button>
-                    <button class="btn" id="btn2" onclick="" type="button">Bad</button>
-                    <button class="btn" id="btn3" onclick="" type="button">Okay</button>
-                    <button class="btn" id="btn4" onclick="" type="button">Good</button>
-                    <button class="btn" id="btn5" onclick="" type="button">Very
+                    <button class="btn" id="btn2" onclick="save_label(1)" type="button">Bad</button>
+                    <button class="btn" id="btn3" onclick="save_label(2)" type="button">Okay</button>
+                    <button class="btn" id="btn4" onclick="save_label(3)" type="button">Good</button>
+                    <button class="btn" id="btn5" onclick="save_label(4)" type="button">Very
                         good</button>
                     <!-- Name and "no logo" button -->
                     <input class="form btn" id="alias" placeholder="Your Name or alias" type="text">

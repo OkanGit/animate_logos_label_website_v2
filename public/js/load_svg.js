@@ -3,9 +3,12 @@
 //const axios = require('axios');
 
 scope = 2000;
+current_logo = "";
+current_data = null;
 
 
 function load_random_logo(){
+    reset_animation_id()
     $(document).ready(function () {
         logos = [];
         $.when($.get("resources/results_shuffled.txt", function (data) {
@@ -22,6 +25,7 @@ function load_random_logo(){
             console.log("Load random number: " + number);
             let line = logos[number].split(';');
             const filename = line[0];
+            current_logo = filename;
             const url = line[1];
             $.get(url, function (data) {
                 const result = new XMLSerializer().serializeToString(data);
@@ -77,6 +81,14 @@ function generate_data(previous_output, max_animation_id){
         data.push(animation)
     }
     return data
+}
+
+function get_current_logo(){
+    return current_logo;
+}
+
+function get_current_data(){
+    return current_data;
 }
 
 

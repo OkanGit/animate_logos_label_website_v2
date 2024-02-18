@@ -523,11 +523,6 @@ function _get_filter_element(document, animation_id, animation) {
     return [current_filter, current_fe, animate_element];
 }
 
-
-function randomly_animate_logo(logo_path, target_path, number_of_animations, previously_generated) {
-    // Implementation of randomly_animate_logo
-}
-
 function get_all_elements(document){
     paths = Array.from(document.getElementsByTagName('path'))
     circles = Array.from(document.getElementsByTagName('circle'))
@@ -541,6 +536,9 @@ function get_all_elements(document){
     elements = elements.concat(paths, circles, ellipses, lines, polygons, polylines, rects, texts)
     return elements
     
+}
+function reset_animation_id(){
+    global_animation_id = 0;
 }
 function insert_animation_id(element){
     element.setAttribute('animation_id', global_animation_id);
