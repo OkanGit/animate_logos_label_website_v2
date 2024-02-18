@@ -128,7 +128,6 @@ function getGlobalStyleAttributes(document) {
         const style = styleElements[i].textContent;
         const classes = style.split('}');
         for (let j = 0; j < classes.length - 1; j++) {
-            console.log(classes[j])
             if (classes[j] == "") continue;
             const classString = classes[j].split('{')[0].trim();
             const styleString = classes[j].split('{')[1].trim();

@@ -50,7 +50,6 @@ function animate_logo(model_output, logo_document) {
                 return;
             }
         }
-
         for (const animation_type of animations_by_type.keys()) {
             const animationList = animations_by_type.get(animation_type)
             const current_animations = [];
@@ -58,16 +57,26 @@ function animate_logo(model_output, logo_document) {
             // Normalize begin and duration
             // For this step, merge translate and curve
             const joint_list = [];
-            if (animation_type == 1 || animation_type == 2){
+            if (animation_type == 1){
                 // get joint list
-                extended_arr_1 = animations_by_type.get(1).forEach((a) => a.push(1));
-                extended_arr_2 = animations_by_type.get(2).forEach((a) => a.push(2));
+                //debugger;
+                let extended_arr_1 = animations_by_type.get(animation_type);
+                extended_arr_1.forEach(a => a.push(animation_type));
+                console.log(extended_arr_1);
                 joint_list.push(...extended_arr_1);
+            }
+            else if (animation_type == 2){
+                // get joint list
+                //debugger;
+                let extended_arr_2 = animations_by_type.get(animation_type);
+                extended_arr_2.forEach(a => a.push(animation_type));
+                console.log(extended_arr_2);
                 joint_list.push(...extended_arr_2);
             }
             else{
                 joint_list.push(...animations_by_type.get(animation_type))
             }
+            
             animationList.sort((a, b) => a[10] - b[10]); // Sort by begin
             for (let i = 0; i < joint_list.length; i++){
                 if (joint_list.length > 1){
@@ -97,11 +106,20 @@ function animate_logo(model_output, logo_document) {
                     }
                 }
             }
-            let final_list = []
+            let final_list = [];
             for (let i = 0; i < joint_list.length; i++){
                 if (animation_type == 1 || animation_type == 2){
-                    if(animation_type == joint_list[joint_list.length - 1]){
-                        final_list.push(joint_list[i].slice(0, joint_list.length - 1))
+                    console.log('animation');
+                    console.log(animation_type);
+                    console.log(joint_list[i][joint_list[i].length - 1]);
+                    if(animation_type == joint_list[i][joint_list[i].length - 1]){
+                        console.log('found');
+                        console.log(joint_list[i]);
+                        joint_list[i].pop();
+                        //const original_animation = joint_list[i].slice(0, joint_list.length - 1);
+                        const original_animation = joint_list[i]
+                        console.log(original_animation);
+                        final_list.push(original_animation);
                     }
                     else{
                         continue;
@@ -111,6 +129,7 @@ function animate_logo(model_output, logo_document) {
                     final_list.push(joint_list[i]);
                 }
             }
+            debugger;
 
             for (let i = 0; i < final_list.length; i++) {
                 
