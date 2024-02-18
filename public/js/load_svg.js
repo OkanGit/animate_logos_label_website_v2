@@ -33,9 +33,10 @@ function load_random_logo(){
                 data = generate_data(null, elements.length);
                 console.log(data)
                 // animate
-                animate_logo(data, document)
+                const duration = animate_logo(data, document)
                 const result2 = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
                 document.getElementById("logo").innerHTML = result2;
+                document.getElementById('timer').innerText = duration;
             });
         });
     });
@@ -43,21 +44,17 @@ function load_random_logo(){
 
 function generate_data(previous_output, max_animation_id){
     // Random number of animations; max as number of paths
-    //let number_animations = Math.floor(Math.random() * max_animation_id) + 1;
-    let number_animations = 1
+    let number_animations = Math.floor(Math.random() * max_animation_id) + 1;
     // Generate animations
     data = [];
     for (i=0; i < number_animations; i++){
         // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-        //let type = Math.floor(Math.random() * 9) + 1; //  --- DOne --- TODO change back
-        let type = 9;
+        let type = Math.floor(Math.random() * 9) + 1;
         let animation_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         animation_type[type] = 1;
         // Animation parameters (positions 10-25 of animation embedding) 
-        //let begin = Math.floor(Math.random() * 20); // Maximum 20s; no flooring as value is float
-        //let dur = Math.floor(Math.random() * 20) + 1; // Min 1s; Maximum 20s; no flooring as value is float
-        let begin = 0;
-        let dur = 3;
+        let begin = Math.floor(Math.random() * 20); // Maximum 20s; no flooring as value is float
+        let dur = Math.floor(Math.random() * 20) + 1; // Min 1s; Maximum 20s; no flooring as value is float
         let from_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let from_y = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let via_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
