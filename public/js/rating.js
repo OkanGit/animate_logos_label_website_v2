@@ -29,7 +29,8 @@ function save_label(rating) {
 
     const data = {
         filename: get_current_logo(),
-        data: JSON.stringify(arrays),
+        //data: JSON.stringify(current_data),
+        data: current_data,
         rating: rating,
         alias: alias,
         time: firebase.firestore.FieldValue.serverTimestamp()
@@ -37,7 +38,7 @@ function save_label(rating) {
         
     console.log(data)
       // Add a new document in collection "cities" with ID 'LA'
-    //const res = db.collection('animations').doc(get_current_logo()).set(data); 
+    const res = db.collection('animations').doc(get_current_logo()).set(data); 
     
     console.log("db added")
     load_random_logo()

@@ -126,7 +126,15 @@ function get_current_logo(){
 
 function get_current_data(){
     console.log(current_data);
-    return current_data;
+    let final_data = "";
+    for(i = 0; i < current_data.length; i++){
+        let animation = current_data[i];
+        const key = Array.from(animation.keys())[0];
+        const output = animation.get(key);
+        final_data += key + "," + output + ";";
+    }
+    console.log(final_data);
+    return final_data;
 }
 
 function set_current_logo(logo){
