@@ -5,7 +5,6 @@
   },
   "hosting": {
     "public": "public",
-    "site": "rate-logos",
     "ignore": [
       "firebase.json",
       "**/.*",
