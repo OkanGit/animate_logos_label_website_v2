@@ -30,8 +30,9 @@ function load_random_logo(){
                 elements = get_all_elements(document);
                 elements.forEach(insert_animation_id);
 
-                data = generate_data(null, elements.length);
-                console.log(data)
+                data = generate_data(elements.length);
+                current_data = data;
+                console.log(data);
                 // animate
                 const duration = animate_logo(data, document)
                 const result2 = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
@@ -42,19 +43,57 @@ function load_random_logo(){
     });
 }
 
-function generate_data(previous_output, max_animation_id){
+function randomWithProbability(outcomes, weights){
+    if(!weights){
+        weights=Array(outcomes.length).fill(1);
+    }
+    let totalWeight=weights.reduce((prev, curr)=>prev+=curr);
+    const num=Math.random();
+    let sum=0, lastIndex=weights.length-1;
+    for(let i=0; i<=lastIndex; i++){
+        sum+=weights[i]/totalWeight;
+        if(num<sum) return outcomes[i];
+    }
+    return outcomes[lastIndex];
+}
+
+function generate_data(max_animation_id, previous_output = null){
     // Random number of animations; max as number of paths
     let number_animations = Math.floor(Math.random() * max_animation_id) + 1;
     // Generate animations
     data = [];
+    
     for (i=0; i < number_animations; i++){
         // Animation type: [EOS, translate, curve, scale, rotate, skewX, skewY, fill, opacity, blur]
-        let type = Math.floor(Math.random() * 9) + 1;
+        let type = 0;
+        if(previous_output != null){
+            let map = new Map();
+            for(i = 0; i < previous_output.length; i++){
+                const type = animation.slice(0, 10).indexOf(1);
+                if(type != 0){
+                    map.set(type, map.get(type) + 1);
+                }
+            }
+            let types = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            let weights = [];
+            for(i = 1; i <= types.length; i++){
+                let num = map.get(i);
+                if(num === undefined){
+                    num = 1;
+                }
+                const weight = 1 / num;
+                weights.push(weight);
+            }
+            type = randomWithProbability(types, weights)
+        }
+        else{
+            type = Math.floor(Math.random() * 9) + 1;
+        }
         let animation_type = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         animation_type[type] = 1;
         // Animation parameters (positions 10-25 of animation embedding) 
-        let begin = Math.floor(Math.random() * 20); // Maximum 20s; no flooring as value is float
-        let dur = Math.floor(Math.random() * 20) + 1; // Min 1s; Maximum 20s; no flooring as value is float
+        let begin = Math.floor(Math.random() * 10); // Maximum 20s; no flooring as value is float
+        let dur = Math.floor(Math.random() * 5) + 1; // Min 1s; Maximum 20s; no flooring as value is float
         let from_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let from_y = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
         let via_x = Math.floor(Math.random() * 100) - 50; // Min -50, Max 50
