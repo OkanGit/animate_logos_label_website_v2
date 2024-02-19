@@ -125,6 +125,7 @@ function get_current_logo(){
 }
 
 function get_current_data(){
+    console.log(current_data);
     return current_data;
 }
 

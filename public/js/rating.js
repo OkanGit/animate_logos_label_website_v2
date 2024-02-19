@@ -23,19 +23,22 @@ console.log(storageRef)
 /* Write label for the animated logo in the database - from previous project */
 function save_label(rating) {
     
+    current_data = get_current_data()
     alias = document.getElementById("alias").value;
     console.log('rated ' + rating);
 
     const data = {
         filename: get_current_logo(),
-        data: get_current_data(),
+        data: JSON.stringify(arrays),
         rating: rating,
         alias: alias,
         time: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
+    };
+        
+    console.log(data)
       // Add a new document in collection "cities" with ID 'LA'
-    const res = db.collection('labels').doc('animation_ratings').set(data);
+    //const res = db.collection('animations').doc(get_current_logo()).set(data); 
+    
     console.log("db added")
     load_random_logo()
 }
