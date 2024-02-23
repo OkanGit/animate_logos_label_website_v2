@@ -114,6 +114,13 @@ function animate_logo(model_output, logo_document) {
                     }
                 }
             }
+            // Set back begin time such that first animation directly begins
+            joint_list.sort((a, b) => a[10] - b[10]); // Sort by begin
+            const o_begin = joint_list[0][10];
+            for(let i = 0; i < joint_list.length; i++){
+                joint_list[i][10] = joint_list[i][10] - o_begin;
+            }
+            // Set up final animation parameters
             let final_list = [];
             for (let i = 0; i < joint_list.length; i++){
                 if (animation_type == 1 || animation_type == 2){
@@ -128,46 +135,6 @@ function animate_logo(model_output, logo_document) {
                 }
                 else{
                     final_list.push(joint_list[i]);
-                }
-            }
-
-            // Set style attribute
-            if(final_list.length > 0){
-                const firstValue = final_list[0];
-                switch(animation_type){
-                    case 1:
-                    case 2:
-                        current_element.setAttribute('x', firstValue[12]);
-                        current_element.setAttribute('y', firstValue[13]);
-                        break;
-                    case 3:
-                        current_element.style.scale = firstValue[16];
-                        break;
-                    case 4:
-                        let r = firstValue[17] + 'deg'
-                        current_element.style.rotate = r;
-                        break;
-                    case 5:
-                        let x = `skew(${firstValue[18]})`;
-                        current_element.style.transform = x;
-                        break;
-                    case 6:
-                        let y = `skew(0, ${firstValue[19]})`;
-                        current_element.style.transform = y;
-                        break;
-                    case 7:
-                        let fill = getFillAttribute(logo_document, animation_id);
-                        if(fill == null){
-                            fill = '#000';
-                        }
-                        current_element.setAttribute('fill', fill);
-                        break;
-                    case 8:
-                        current_element.style.opacity = firstValue[23];
-                        break;
-                    case 9:
-                        current_element.style.filter = `blur(${firstValue[24]})`;
-                        break;
                 }
             }
 
@@ -358,13 +325,13 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
 
 function getFillAttribute(document, animation_id){
     const elements = get_all_elements(document);
-    let current_element = null;
-    for(const element of elements){
-        if (element.getAttribute('animation_id') == animation_id){
-            current_element = element;
-            break;
+        let current_element = null;
+        for(let i=0; i < elements.length; i++){
+            const element = elements[i]
+            if(element.getAttribute('animation_id') == animation_id){
+                current_element = element;
+            }
         }
-    }
     if (current_element == null){
         return null;
     }
@@ -536,12 +503,12 @@ function _insert_animations(animations, document) {
 
     for (const animation of animations) {
         console.log('Current animation')
-        console.log(animation)
+        console.log(animation);
         let current_element = null;
-        for (const element of elements) {
-            if (element.getAttribute('animation_id') == animation.animation_id) {
+        for(let i=0; i < elements.length; i++){
+            const element = elements[i]
+            if(element.getAttribute('animation_id') == animation.animation_id){
                 current_element = element;
-                break;
             }
         }
         console.log(!current_element)

@@ -38,6 +38,10 @@ function load_random_logo(){
                 const result2 = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
                 document.getElementById("logo").innerHTML = result2;
                 document.getElementById('timer').innerText = duration;
+                setTimeout(function () {
+                    console.log("Set original logo")
+                    document.getElementById("logo").innerHTML = result1;
+                }, (duration + 2) * 1000);
             });
         });
     });
