@@ -1,9 +1,15 @@
 let scope = 2000;
 let current_logo = "";
 let current_data = null;
+let original_logo = "";
+let animated_logo = "";
+let timeouts = [];
 
 
 function load_random_logo(){
+    for (var i=0; i<timeouts.length; i++) {
+        clearTimeout(timeouts[i]);
+    }
     reset_animation_id()
     $(document).ready(function () {
         logos = [];
@@ -24,8 +30,8 @@ function load_random_logo(){
             current_logo = filename;
             const url = line[1];
             $.get(url, function (data) {
-                const result1 = new XMLSerializer().serializeToString(data);
-                document.getElementById("logo").innerHTML = result1;
+                original_logo = new XMLSerializer().serializeToString(data);
+                document.getElementById("logo").innerHTML = original_logo;
                 // insert animation id
                 elements = get_all_elements(document);
                 elements.forEach(insert_animation_id);
@@ -35,16 +41,28 @@ function load_random_logo(){
                 console.log(data);
                 // animate
                 const duration = animate_logo(data, document)
-                const result2 = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
-                document.getElementById("logo").innerHTML = result2;
+                animated_logo = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
+                document.getElementById("logo").innerHTML = animated_logo;
                 document.getElementById('timer').innerText = duration;
-                setTimeout(function () {
+                timeouts.push(setTimeout(function () {
                     console.log("Set original logo")
-                    document.getElementById("logo").innerHTML = result1;
-                }, (duration + 2) * 1000);
+                    document.getElementById("logo").innerHTML = original_logo;
+                }, (duration + 2) * 1000));
             });
         });
     });
+}
+
+function reload_animation(){
+    for (var i=0; i<timeouts.length; i++) {
+        clearTimeout(timeouts[i]);
+    }
+    document.getElementById("logo").innerHTML = animated_logo;
+    duration = Number(document.getElementById('timer').innerText);
+    timeouts.push(setTimeout(function () {
+        console.log("Set original logo");
+        document.getElementById("logo").innerHTML = original_logo;
+    }, (duration + 2) * 1000));
 }
 
 function randomWithProbability(outcomes, weights){
