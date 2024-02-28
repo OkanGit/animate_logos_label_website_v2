@@ -1,3 +1,4 @@
+let current_id = -1;
 // Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCh6aR5z94Pv5zdputrUsEnEpThLeVrWHs",
@@ -20,14 +21,33 @@ console.log(db)
 console.log(storage)
 console.log(storageRef)
 
+async function get_current_id(){
+    let doc = db.collection('animations_id').doc('id');
+    await doc.get().then(function(doc){
+        current_id = doc.data().id;
+        console.log(current_id);
+        set_current_id(current_id + 1);
+    });
+    return;
+}
+
+function set_current_id(id){
+    const data = {
+        id: id
+    };
+    const res = db.collection('animations_id').doc('id').set(data)
+}
+
 /* Write label for the animated logo in the database - from previous project */
-function save_label(rating) {
+async function save_label(rating) {
     
     current_data = get_current_data()
     alias = document.getElementById("alias").value;
     console.log('rated ' + rating);
-
+    await get_current_id();
+    console.log('id: ' + current_id);
     const data = {
+        id: current_id,
         filename: get_current_logo(),
         //data: JSON.stringify(current_data),
         data: current_data,
@@ -37,10 +57,11 @@ function save_label(rating) {
     };
         
     console.log(data)
-      // Add a new document in collection "cities" with ID 'LA'
-    const res = db.collection('animations').doc(get_current_logo()).set(data); 
+        // Add a new document in collection "cities" with ID 'LA'
+    const res = db.collection('animations_new').doc(String(current_id)).set(data); 
     
     console.log("db added")
+
     load_random_logo()
 }
 

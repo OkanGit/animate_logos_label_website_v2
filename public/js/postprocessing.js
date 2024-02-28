@@ -82,7 +82,7 @@ function animate_logo(model_output, logo_document) {
             joint_list.sort((a, b) => a[10] - b[10]); // Sort by begin
             for (let i = 0; i < joint_list.length; i++){
                 if (joint_list.length > 1){
-                    let j = 1;
+                    /*let j = 1;
                     let next_animation = joint_list[j];
                     // Get next animation with different begin time
                     while((i+j) < joint_list.length - 1 && joint_list[i][10] == next_animation[10]){
@@ -104,10 +104,13 @@ function animate_logo(model_output, logo_document) {
                             joint_list[a][10] = joint_list[i][10] + interval * factor;
                             factor++;
                         }
-                    }
+                    }*/
                     // Check duration
                     if (i < joint_list.length - 1){
                         let max_dur = joint_list[i+1][10] - joint_list[i][10];
+                        if (max_dur < 1){
+                            max_dur = 1;
+                        }
                         if (joint_list[i][11] > max_dur){
                             joint_list[i][11] = max_dur;
                         }
@@ -247,7 +250,7 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
             if (i < animationList.length - 1) {
                 skewX_to_x = animationList[i + 1][18];
             } else {
-                skewX_to_x = 1;
+                skewX_to_x = 0;
             }
             skewX_from_x = Math.min(Math.max(skewX_from_x, xmin), xmax);
             skewX_to_x = Math.min(Math.max(skewX_to_x, xmin), xmax);
@@ -260,7 +263,7 @@ function handleAnimation(animation_id, i, animationList, animationType, animatio
             if (i < animationList.length - 1) {
                 skewY_to_y = animationList[i + 1][19];
             } else {
-                skewY_to_y = 1;
+                skewY_to_y = 0;
             }
             skewY_from_y = Math.min(Math.max(skewY_from_y, ymin), ymax);
             skewY_to_y = Math.min(Math.max(skewY_to_y, ymin), ymax);
