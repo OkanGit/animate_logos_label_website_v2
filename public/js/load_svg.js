@@ -173,6 +173,7 @@ function generate_data(max_animation_id, logo, previous_output = null){
                     }
                     break;
             }
+            i = number_animations;
         }
         else{
             let type = 0;
