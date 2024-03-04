@@ -108,12 +108,12 @@ function animate_logo(model_output, logo_document) {
                     // Check duration
                     if (i < joint_list.length - 1){
                         let max_dur = joint_list[i+1][10] - joint_list[i][10];
-                        if (max_dur < 1){
-                            max_dur = 1;
-                        }
                         if (joint_list[i][11] > max_dur){
                             joint_list[i][11] = max_dur;
                         }
+                    }
+                    if (joint_list[i][11] <= 0){
+                        joint_list[i][11] = 1;
                     }
                 }
             }

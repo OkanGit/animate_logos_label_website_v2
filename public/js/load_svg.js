@@ -53,6 +53,20 @@ function load_random_logo(){
     });
 }
 
+function load_customized_logo(data){
+    current_data = data;
+    console.log(data);
+    // animate
+    const duration = animate_logo(data, document)
+    animated_logo = new XMLSerializer().serializeToString(document.getElementsByTagName('svg')[0]);
+    document.getElementById("logo").innerHTML = animated_logo;
+    document.getElementById('timer').innerText = duration;
+    timeouts.push(setTimeout(function () {
+        console.log("Set original logo")
+        document.getElementById("logo").innerHTML = original_logo;
+    }, (duration + 2) * 1000));
+}
+
 function reload_animation(){
     for (var i=0; i<timeouts.length; i++) {
         clearTimeout(timeouts[i]);
