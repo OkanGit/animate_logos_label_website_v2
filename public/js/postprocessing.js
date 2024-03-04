@@ -122,6 +122,9 @@ function animate_logo(model_output, logo_document) {
             const o_begin = joint_list[0][10];
             for(let i = 0; i < joint_list.length; i++){
                 joint_list[i][10] = joint_list[i][10] - o_begin;
+                if (joint_list[i][10] < 0){
+                    joint_list[i][10] = 0;
+                }
             }
             // Set up final animation parameters
             let final_list = [];
@@ -158,6 +161,8 @@ function animate_logo(model_output, logo_document) {
     for(let i=0; i < total_animations.length; i++){
         const animation = total_animations[i];
         let temp_dur = Number(animation.begin) + Number(animation.dur);
+        console.log('begin ' + animation.begin);
+        console.log('dur ' + animation.dur);
         if(temp_dur > duration){
             duration = temp_dur;
         }
